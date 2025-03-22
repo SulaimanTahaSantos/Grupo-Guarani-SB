@@ -1,0 +1,11 @@
+body{
+    font-family: 'Manrope';
+}
+.table-hover tbody tr:hover {
+background-color: rgb(195, 192, 189);
+}
+
+
+.actions i{
+padding: 10px;
+}
