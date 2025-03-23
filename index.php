@@ -8,9 +8,6 @@ $clientes = $result->fetch_all(MYSQLI_ASSOC);
 
 $result2 = $mysqli->query("SELECT * FROM facturacion ORDER BY id DESC");
 $facturacion = $result2->fetch_all(MYSQLI_ASSOC);
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -102,27 +99,23 @@ $facturacion = $result2->fetch_all(MYSQLI_ASSOC);
                                 <?php echo !empty($cliente['comentario']) ? ($cliente['comentario']) : '-'; ?>
                             </td>
                              
-   <?php if (!empty($facturacion) && is_array($facturacion)) { ?>
-    <td>
-        <?php foreach ($facturacion as $factura) { ?>
-            <a href="ver_factura.php?id=<?php echo htmlspecialchars($factura['id']); ?>" class="inline-block text-green-500 hover:text-green-700 mr-2" title="Ver factura">
-                <i class="fa-solid fa-eye"></i>
-            </a>
-            <a href="edit_factura.php?id=<?php echo htmlspecialchars($factura['id']); ?>" class="inline-block text-blue-500 hover:text-blue-700 mr-2" title="Editar factura">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </a>
-            <a href="delete_facturacion.php?id=<?php echo htmlspecialchars($factura['id']); ?>" class="inline-block text-red-500 hover:text-red-700" title="Eliminar factura"
-                onclick="return confirm('¿Estás seguro de que quieres eliminar esta factura?');">
-                <i class="fa-solid fa-trash"></i>
-            </a>
-        <?php } ?>
-    </td>
-<?php } else { ?>
-    <td>No hay facturas disponibles</td>
-<?php } ?>
+                            <?php if (!empty($facturacion) && is_array($facturacion)) { ?>
+                                <td>
+                                    <a href="ver_factura.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="inline-block text-green-500 hover:text-green-700 mr-2" title="Ver factura">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a href="edit_factura.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="inline-block text-blue-500 hover:text-blue-700 mr-2" title="Editar factura">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="delete_facturacion.php?id=<?php echo htmlspecialchars($cliente['id']); ?>" class="inline-block text-red-500 hover:text-red-700" title="Eliminar factura"
+                                        onclick="return confirm('¿Estás seguro de que quieres eliminar esta factura?');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            <?php } else { ?>
+                                <td>No hay facturas disponibles</td>
+                            <?php } ?>
 
-
-                            
                             <td class="py-3 px-4 actions text-center flex justify-center">
                                 <a href="edit.php?id=<?php echo $cliente['id']; ?>" class="inline-block text-blue-500 hover:text-blue-900 mr-2" title="Editar">
                                     <i class="fa-solid fa-pen-to-square"></i>
