@@ -3,8 +3,16 @@ require_once 'config.php';
 require_once 'auth.php';
 requireLogin();
 
-$result = $mysqli->query("SELECT * FROM clientes ORDER BY id DESC");
+$clientesPorPagina = 10; 
+$paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+$offset = ($paginaActual - 1) * $clientesPorPagina; 
+
+$result = $mysqli->query("SELECT * FROM clientes ORDER BY id DESC LIMIT $offset, $clientesPorPagina");
 $clientes = $result->fetch_all(MYSQLI_ASSOC);
+
+$resultTotal = $mysqli->query("SELECT COUNT(*) AS total FROM clientes");
+$totalClientes = $resultTotal->fetch_assoc()['total'];
+$totalPaginas = ceil($totalClientes / $clientesPorPagina); 
 
 $result2 = $mysqli->query("SELECT * FROM facturacion ORDER BY id DESC");
 $facturacion = $result2->fetch_all(MYSQLI_ASSOC);
@@ -150,63 +158,49 @@ $facturacion = $result2->fetch_all(MYSQLI_ASSOC);
                             </a>
                         </div>
                     </div>
-                    <div class="space-y-1 text-sm">
-                        <p><i class="fa-solid fa-location-dot w-5"></i> <?= ($cliente['domicilio']); ?></p>
-                        <p><i class="fa-solid fa-city w-5"></i> <?= ($cliente['poblacion']); ?> (<?= ($cliente['cp']); ?>)</p>
-                        <p><i class="fa-solid fa-phone w-5"></i> <?= ($cliente['telefono']); ?></p>
-                        <?php if (!empty($cliente['comentario'])): ?>
-                            <p class="mt-2 text-gray-600">
-                                <i class="fa-solid fa-comment w-5"></i> <?= ($cliente['comentario']); ?>
-                            </p>
-                        <?php endif; ?>
+                    <div>
+                        <p><strong>Domicilio:</strong> <?= ($cliente['domicilio']); ?></p>
+                        <p><strong>Población:</strong> <?= ($cliente['poblacion']); ?></p>
+                        <p><strong>Teléfono:</strong> <?= ($cliente['telefono']); ?></p>
+                        <p><strong>Comentario:</strong> <?= !empty($cliente['comentario']) ? ($cliente['comentario']) : '-'; ?></p>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Paginación -->
+        <div class="pagination flex justify-center mt-6 gap-4">
+            <?php if ($paginaActual > 1): ?>
+                <a href="?pagina=<?= $paginaActual - 1; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">Anterior</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <a href="?pagina=<?= $i; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 <?= ($i === $paginaActual) ? 'bg-blue-600' : ''; ?>">
+                    <?= $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($paginaActual < $totalPaginas): ?>
+                <a href="?pagina=<?= $paginaActual + 1; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">Siguiente</a>
+            <?php endif; ?>
+        </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const clientesTableBody = document.getElementById('clientesTableBody');
-            const clientesCards = document.getElementById('clientesCards');
-            const tableRows = clientesTableBody.getElementsByTagName('tr');
-            const cards = clientesCards.children;
-
-            // Función para normalizar texto (eliminar acentos y convertir a minúsculas)
-            const normalizeText = (text) => {
-                return text.toLowerCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '') // Elimina acentos
-                    .replace(/[^a-zA-Z0-9\s]/g, ''); // Elimina caracteres especiales
-            };
-
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = normalizeText(searchInput.value);
-
-                // Búsqueda en la tabla
-                for (let i = 0; i < tableRows.length; i++) {
-                    const row = tableRows[i];
-                    const cells = row.getElementsByTagName('td');
-                    let found = false;
-
-                    for (let j = 0; j < cells.length; j++) {
-                        const cellText = normalizeText(cells[j].textContent);
-                        if (cellText.includes(searchTerm)) {
-                            found = true;
-                            break;
-                        }
+        // Filtro de búsqueda
+        document.getElementById('searchInput').addEventListener('input', function () {
+            let searchValue = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#clientesTableBody tr');
+            rows.forEach(function (row) {
+                let cells = row.getElementsByTagName('td');
+                let match = false;
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i].textContent.toLowerCase().includes(searchValue)) {
+                        match = true;
+                        break;
                     }
-
-                    row.style.display = found ? '' : 'none';
                 }
-
-                // Búsqueda en las cards
-                for (let i = 0; i < cards.length; i++) {
-                    const card = cards[i];
-                    const cardText = normalizeText(card.textContent);
-                    card.style.display = cardText.includes(searchTerm) ? '' : 'none';
-                }
+                row.style.display = match ? '' : 'none';
             });
         });
     </script>

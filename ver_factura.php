@@ -1,9 +1,8 @@
 <?php
 require_once 'config.php';
 
-// Procesar cambio de estado a "Pagada"
 if (isset($_GET['factura_id']) && isset($_GET['estado'])) {
-    $factura_id = $_GET['factura_id']; // Cambiar 'id' por 'factura_id'
+    $factura_id = $_GET['factura_id']; 
     $estado = $_GET['estado'];
 
     if ($estado == 'Pendiente') {
@@ -30,13 +29,23 @@ if (isset($_GET['id'])) {
         $cliente = $cliente_result->fetch_assoc();
     }
 
+    $limit = 10; 
+    $paginaActual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+    $offset = ($paginaActual - 1) * $limit;
+
     $sql = "SELECT f.*, c.nombre as cliente_nombre 
             FROM facturacion f 
             JOIN clientes c ON f.cliente_id = c.id 
             WHERE f.cliente_id = $cliente_id
-            ORDER BY f.id DESC";
+            ORDER BY f.id DESC 
+            LIMIT $limit OFFSET $offset";
 
     $result = $mysqli->query($sql);
+
+    $totalSql = "SELECT COUNT(*) as total FROM facturacion WHERE cliente_id = $cliente_id";
+    $totalResult = $mysqli->query($totalSql);
+    $totalFacturas = $totalResult->fetch_assoc()['total'];
+    $totalPaginas = ceil($totalFacturas / $limit);
 } else {
     header('Location: index.php');
     exit;
@@ -61,70 +70,6 @@ if (isset($_GET['id'])) {
             </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow mb-6 overflow-hidden">
-            <div class="border-b border-gray-200 bg-gray-50 px-6 py-3 flex items-center">
-                <i class="fas fa-user-circle text-gray-500 mr-2 text-lg"></i>
-                <h2 class="text-xl font-semibold text-gray-700">Datos del Cliente</h2>
-            </div>
-
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <div class="w-28 flex-shrink-0">
-                                <span class="text-gray-500 font-medium">Nombre:</span>
-                            </div>
-                            <div class="font-semibold text-gray-800">
-                                <?php echo htmlspecialchars($cliente['nombre']); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="flex">
-                            <div class="w-28 flex-shrink-0">
-                                <span class="text-gray-500 font-medium">Domicilio:</span>
-                            </div>
-                            <div class="font-semibold text-gray-800">
-                                <?php echo htmlspecialchars($cliente['domicilio']); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="flex">
-                            <div class="w-28 flex-shrink-0">
-                                <span class="text-gray-500 font-medium">NIF:</span>
-                            </div>
-                            <div class="font-semibold text-gray-800">
-                                <?php echo htmlspecialchars($cliente['nif']); ?>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <div class="w-28 flex-shrink-0">
-                                <span class="text-gray-500 font-medium">Población:</span>
-                            </div>
-                            <div class="font-semibold text-gray-800">
-                                <?php echo htmlspecialchars($cliente['poblacion']); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="flex">
-                            <div class="w-28 flex-shrink-0">
-                                <span class="text-gray-500 font-medium">Teléfono:</span>
-                            </div>
-                            <div class="font-semibold text-gray-800">
-                                <a href="tel:<?php echo htmlspecialchars($cliente['telefono']); ?>" class="text-gray-800 hover:text-blue-600 transition-colors">
-                                    <i class="fas fa-phone-alt text-gray-400 mr-1"></i>
-                                    <?php echo htmlspecialchars($cliente['telefono']); ?>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabla de facturas -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -214,6 +159,23 @@ if (isset($_GET['id'])) {
                 </tbody>
             </table>
         </div>
+
+        <div class="pagination flex justify-center mt-6 gap-4">
+            <?php if ($paginaActual > 1): ?>
+                <a href="?id=<?= $cliente_id; ?>&pagina=<?= $paginaActual - 1; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">Anterior</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <a href="?id=<?= $cliente_id; ?>&pagina=<?= $i; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 <?= ($i === $paginaActual) ? 'bg-blue-600' : ''; ?>">
+                    <?= $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($paginaActual < $totalPaginas): ?>
+                <a href="?id=<?= $cliente_id; ?>&pagina=<?= $paginaActual + 1; ?>" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">Siguiente</a>
+            <?php endif; ?>
+        </div>
+
     </div>
 </body>
 </html>
