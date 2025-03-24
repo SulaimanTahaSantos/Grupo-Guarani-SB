@@ -1,6 +1,10 @@
 <?php
 require_once 'config.php';
 
+require('fpdf/fpdf.php');
+
+
+
 if (isset($_GET['factura_id']) && isset($_GET['estado'])) {
     $factura_id = $_GET['factura_id']; 
     $estado = $_GET['estado'];
@@ -146,7 +150,7 @@ if (isset($_GET['id'])) {
                            <a href="ver_factura.php?id=<?php echo $cliente_id; ?>&estado=<?php echo $estado; ?>&factura_id=<?php echo $factura['id']; ?>" class="text-indigo-600 hover:text-indigo-900">
                                Cambiar estado
                            </a>
-                           <a class="ml-2" href="">Descargar PDF</a>
+                           <a href="descargar_pdf.php?factura_id=<?php echo $factura['id']; ?>" class="ml-2 text-blue-600 hover:text-blue-800">Descargar PDF</a>
                         </td>
                     </tr>
                     <?php } ?>
