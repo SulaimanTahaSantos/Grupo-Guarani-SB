@@ -23,9 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $precio = $mysqli->real_escape_string($_POST['precio']);
     $importe = $mysqli->real_escape_string($_POST['importe']);
     $observaciones = $mysqli->real_escape_string($_POST['observaciones']);
-    //$created_at = $mysqli->real_escape_string($_POST['created_at']);
-    //$updated_at = $mysqli->real_escape_string($_POST['updated_at']);
-    //$cliente_id = $mysqli->real_escape_string($_POST['cliente_id']);
 
     $query = "UPDATE facturacion SET cantidad = ?, codigo = ?, concepto = ?, precio = ?, importe = ?, observaciones = ? WHERE id = ?";
     $stmt = $mysqli->prepare($query);
@@ -33,13 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
-        echo "Actualización exitosa";
-    } else {
-        echo "No se actualizó ninguna fila. Verifica los datos.";
+        header("Location: edit_factura.php?id=$id");
     }
-
-    header("Location: index.php");
-    exit();
 }
 
 ?>
@@ -50,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editar Cliente - GRUPO GUARANI</title>
+    <title>Editar Factura - GRUPO GUARANI</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
@@ -77,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </header>
 
     <main class="container mx-auto p-4">
-        <form action="edit.php?id=<?php echo $id; ?>" method="POST" class="mt-10 bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
+        <form action="edit_factura.php?id=<?php echo $id; ?>" method="POST" class="mt-10 bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
             <div class="mb-6">
                 <label for="cantidad" class="block text-gray-700 font-bold mb-2">Cantidad</label>
                 <input type="text" id="cantidad" name="cantidad" value=" <?php echo htmlspecialchars($factura['cantidad']); ?> " required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
