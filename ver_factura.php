@@ -1,10 +1,6 @@
 <?php
 require_once 'config.php';
 
-require('fpdf/fpdf.php');
-
-
-
 if (isset($_GET['factura_id']) && isset($_GET['estado'])) {
     $factura_id = $_GET['factura_id']; 
     $estado = $_GET['estado'];
