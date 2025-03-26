@@ -147,6 +147,9 @@ if (isset($_GET['id'])) {
                                Cambiar estado
                            </a>
                            <a href="descargar_pdf.php?factura_id=<?php echo $factura['id']; ?>" class="ml-2 text-blue-600 hover:text-blue-800">Descargar PDF</a>
+                           <a href="edit_factura.php?id=<?php echo htmlspecialchars($factura['id']); ?>" class="inline-block text-blue-500 hover:text-blue-700 mr-2" title="Editar factura">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
                         </td>
                     </tr>
                     <?php } ?>
